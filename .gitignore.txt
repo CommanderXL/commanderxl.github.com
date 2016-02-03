@@ -1,2 +1,2 @@
-buster/
-ghost-0.7.5/
+node_modules
+npm-debug.log
