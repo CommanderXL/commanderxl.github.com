@@ -1,0 +1,466 @@
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>build your promise step by step</title>
+    <meta name="description" content="">
+
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="shortcut icon" href="../favicon.ico">
+
+    <link rel="stylesheet" type="text/css" href="../assets/css/screen.css?v=72b7b54e69">
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic%7COpen+Sans:700,400">
+
+    <link rel="canonical" href="index.html">
+    <meta name="referrer" content="origin">
+    
+    <meta property="og:site_name" content="Sweet Sugar">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="build your promise step by step">
+    <meta property="og:description" content="最近看了一篇关于Promise内部实现原理的文章Promise in wicked detail。作者从简明的例子入手，一步一步的构建健壮的Promise实现。我就拿作者文中的代码实例梳理下文章的核心内容。 大家一定看到过嵌套很深回调函数，那么如何在保证代码流程才能将这些纵向嵌套的代码变成横向偏平的呢？     doSomething(function(value) {         console.log('Got a value:' + value);     }) to this     doSomething().then(function(value) {         console.log('Got a value:' + value);     }) 那么我们就应该在定义doSomething函数的时候做出相应的变化     function doSomething(callback) {         var value = 42;         callback(...">
+    <meta property="og:url" content="http://localhost:2368/build-your-promise-step-by-step/">
+    <meta property="article:published_time" content="2016-04-10T05:13:00.000Z">
+    <meta property="article:modified_time" content="2016-04-10T05:18:28.738Z">
+    <meta property="article:tag" content="Promise">
+    
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="build your promise step by step">
+    <meta name="twitter:description" content="最近看了一篇关于Promise内部实现原理的文章Promise in wicked detail。作者从简明的例子入手，一步一步的构建健壮的Promise实现。我就拿作者文中的代码实例梳理下文章的核心内容。 大家一定看到过嵌套很深回调函数，那么如何在保证代码流程才能将这些纵向嵌套的代码变成横向偏平的呢？     doSomething(function(value) {         console.log('Got a value:' + value);     }) to this     doSomething().then(function(value) {         console.log('Got a value:' + value);     }) 那么我们就应该在定义doSomething函数的时候做出相应的变化     function doSomething(callback) {         var value = 42;         callback(...">
+    <meta name="twitter:url" content="http://localhost:2368/build-your-promise-step-by-step/">
+    
+    <script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "publisher": "Sweet Sugar",
+    "author": {
+        "@type": "Person",
+        "name": "XRene",
+        "url": "http://localhost:2368/author/xrene",
+        "sameAs": null,
+        "description": null
+    },
+    "headline": "build your promise step by step",
+    "url": "http://localhost:2368/build-your-promise-step-by-step/",
+    "datePublished": "2016-04-10T05:13:00.000Z",
+    "dateModified": "2016-04-10T05:18:28.738Z",
+    "keywords": "Promise",
+    "description": "最近看了一篇关于Promise内部实现原理的文章Promise in wicked detail。作者从简明的例子入手，一步一步的构建健壮的Promise实现。我就拿作者文中的代码实例梳理下文章的核心内容。 大家一定看到过嵌套很深回调函数，那么如何在保证代码流程才能将这些纵向嵌套的代码变成横向偏平的呢？     doSomething(function(value) {         console.log(&#x27;Got a value:&#x27; + value);     }) to this     doSomething().then(function(value) {         console.log(&#x27;Got a value:&#x27; + value);     }) 那么我们就应该在定义doSomething函数的时候做出相应的变化     function doSomething(callback) {         var value = 42;         callback(..."
+}
+    </script>
+
+    <meta name="generator" content="Ghost 0.7">
+    <link rel="alternate" type="application/rss+xml" title="Sweet Sugar" href="../rss/index.html">
+</head>
+<body class="post-template tag-promise nav-closed">
+
+    <div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="index.html#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+            <li class="nav-home" role="presentation"><a href="http://commanderxl.github.io/static/">Home</a></li>
+    </ul>
+    <a class="subscribe-button icon-feed" href="../rss/index.rss">Subscribe</a>
+</div>
+<span class="nav-cover"></span>
+
+
+    <div class="site-wrapper">
+
+        
+
+
+<header class="main-header post-head no-cover">
+    <nav class="main-nav  clearfix">
+        
+            <a class="menu-button icon-menu" href="index.html#"><span class="word">Menu</span></a>
+    </nav>
+</header>
+
+<main class="content" role="main">
+    <article class="post tag-promise">
+
+        <header class="post-header">
+            <h1 class="post-title">build your promise step by step</h1>
+            <section class="post-meta">
+                <time class="post-date" datetime="2016-04-10">10 April 2016</time>  on <a href="../tag/promise/">Promise</a>
+            </section>
+        </header>
+
+        <section class="post-content">
+            <p>最近看了一篇关于<code>Promise</code>内部实现原理的文章<a href="http://www.mattgreer.org/articles/promises-in-wicked-detail/">Promise in wicked detail</a>。作者从简明的例子入手，一步一步的构建健壮的<code>Promise</code>实现。我就拿作者文中的代码实例梳理下文章的核心内容。</p>
+
+<p>大家一定看到过嵌套很深回调函数，那么如何在保证代码流程才能将这些纵向嵌套的代码变成横向偏平的呢？</p>
+
+<pre><code class="language-javascript">    doSomething(function(value) {
+        console.log('Got a value:' + value);
+    })
+</code></pre>
+
+<p>to this</p>
+
+<pre><code class="language-javascript">    doSomething().then(function(value) {
+        console.log('Got a value:' + value);
+    })
+</code></pre>
+
+<p>那么我们就应该在定义<code>doSomething</code>函数的时候做出相应的变化</p>
+
+<pre><code class="language-javascript">    function doSomething(callback) {
+        var value = 42;
+        callback(value);
+    }
+</code></pre>
+
+<p>to this</p>
+
+<pre><code class="language-javascript">    function doSomething() {
+        return {
+            then: function(callback) {
+                var value = 42;
+                callback(42);
+            }
+        }
+    }
+</code></pre>
+
+<h2 id="definingthepromisetype">Defining the Promise type</h2>
+
+<p>首先来看一段定义简单<code>Promise</code>构造函数的代码：</p>
+
+<pre><code class="language-javascript">    function Promise(fn) {
+        var callback = null;
+        this.then = function(cb) {
+            callback = cb;
+        }
+
+        function resolve(value) {
+            callback(value)
+        }
+
+        fn(resolve);
+    }
+</code></pre>
+
+<p>然后重写<code>doSomething()</code>函数：</p>
+
+<pre><code class="language-javascript">    function doSomething() {
+        return new Promise(function(resolve) {
+            var value = 42;
+            resolve(value);
+        })
+    }
+</code></pre>
+
+<p>重新定义后的<code>doSomething()</code>函数执行后返回得到一个<code>promise实例</code>，实例上有<code>then()</code>方法，可以接受回调函数。</p>
+
+<pre><code class="language-javascript">    doSomething().then(function(value) {
+        console.log(value);
+    })
+</code></pre>
+
+<p>但是上面的代码会报错<code>(callback is undefined)</code>，是因为：<strong>resolve中的callback要早于then()方法中的callback的赋值操作</strong>。</p>
+
+<p>那么对<code>Promise</code>构造函数稍微处理下，把同步的代码使用<code>setTimeout</code>来hack下，改变代码的执行顺序，使得<code>resolve</code>函数中的<code>callback</code>对<code>value</code>进行处理前被赋值了。</p>
+
+<pre><code class="language-javascript">    function Promise(fn) {
+        var callback = null;
+        this.then = function(cb) {
+            callback = cb;
+        }
+
+        function resolve(value) {
+            setTimeout(function() {
+                callback(value);
+            }, 1)
+        }
+        fn(resolve);
+    }
+</code></pre>
+
+<p>这里通过<code>setTimeout</code>异步函数改变了代码执行的顺序，确保<code>callback</code>被调用前已经被赋值成<code>cb</code>。</p>
+
+<p>重新调用：</p>
+
+<pre><code class="language-javascript">    doSomething().then(function(value) {
+        console.log(value);
+    })
+    // 42
+    //正常执行。
+</code></pre>
+
+<p>但是定义<code>Promise</code>构造函数的代码还是有问题的，因为如果仅仅是调用<code>then()</code>方法而注入回调的话，内部的<code>callback</code>仍然是<code>null</code>。同样不能正常的执行。</p>
+
+<p>别急，慢慢来。</p>
+
+<h2 id="promiseshavestate">Promises have state</h2>
+
+<p>事实上<code>Promise</code>是有状态的:</p>
+
+<ul>
+<li>pending</li>
+<li>resolved</li>
+<li>rejected</li>
+</ul>
+
+<p><code>pending =&gt; resolved</code> 或者 <code>pending =&gt; rejected</code>。状态一旦发生改变，不可逆。接下来，让我们在<code>Promise</code>的构造函数里面加入<code>state</code>，使用<code>state</code>来控制整个代码流程。</p>
+
+<pre><code class="language-javascript">    function Promise(fn) {
+        var state = 'pending', 
+            value, 
+            deferred;
+
+        function resolve(newValue) {
+            state = 'resolved';
+            value = newValue;
+
+            if(deferred) {
+                handle(deferred);
+            }
+        }
+
+        function handle(onResolved) {
+            if(state === 'pending') {
+                deferred = onResolved;
+                return ;
+            }
+
+            onResolved(value);
+        }
+
+        this.then = function(onResolved) {
+            handle(onResolved);
+        }
+
+        fn(resolve);
+    }
+</code></pre>
+
+<p>代码变的比之前更加复杂。但是现在使用<code>state</code>来控制代码的流程。<code>then()方法</code>和<code>resolve()方法</code>将控制权交给了新的方法<code>handle()</code>，由<code>handle()</code>方法来根据<code>state</code>的值进行流程操作:</p>
+
+<ul>
+<li>如果<code>state</code>为<code>pending</code>状态，即在<code>resolve()</code>之前调用了<code>then()</code>方法，那么会将<code>onResolved</code>回调赋值给一个<code>deferred延迟对象</code>，<code>deferred对象</code>将这个回调保存起来，稍后当<code>resolve()</code>调用时,<code>pending</code>状态变为<code>resolved</code>,并调用<code>deferred对象</code>。</li>
+<li>如果在<code>then()</code>方法前调用<code>resolve()</code>方法，<code>pending</code>状态变为<code>resolved</code>，然后调用<code>then()</code>里面注入的回调<code>onResolved</code>.</li>
+</ul>
+
+<p>通过以上的代码，<code>promise</code>可以任意次数的调用<code>then()</code>方法：</p>
+
+<pre><code class="language-javascript">    var promise = doSomething();
+
+    promise.then(function(value) {
+        console.log('Got a value:', value);
+    });
+    // 42
+
+    promise.then(function(value) {
+        console.log('Got the some value again:', value); 
+    });
+    //42
+</code></pre>
+
+<p>但是这样的<code>Promis</code>e构造函数还是有问题的，大家可以想象下，在调用<code>resolve()</code>方法前，调用了很多次的<code>then()</code>方法，那么只有最后一个<code>then()</code>方法里面注入的<code>callback</code>才会有用。解决这个问题的方法就是维持一个<code>deferreds队列</code>，去保存每次<code>then()</code>方法注入的回调函数。</p>
+
+<h2 id="chainingpromises">Chaining Promises</h2>
+
+<p>下面的代码是最普通不过的promise链式调用：</p>
+
+<pre><code class="language-javascript">    getSomeData()
+    .then(filterTheData)
+    .then(processTheData)
+    .then(displayTheData)
+</code></pre>
+
+<p><code>getSomeData()</code>方法调用后会返回一个<code>promise对象</code>，这样便可以调用<code>then()</code>方法，同样这第一个<code>then()</code>方法调用后也会返回一个<code>promise</code>对象。这样才能继续调用<code>then()</code>方法。</p>
+
+<pre><code>then()方法总是返回一个promise
+</code></pre>
+
+<p>接下来在代码中加以实现：</p>
+
+<pre><code class="language-javascript">    function Promise(fn) {
+        var state = 'pending',
+            value,
+            deferred = null;
+
+        function resolve(newValue) {
+            state = 'resolved';
+            value = newValue;
+
+            if(deferred) {
+                handle(deferred);
+            }
+        }
+
+        function handle(handler) {
+            if(state == 'pending') {
+                deferred = handler;
+                return;
+            }
+
+            if(!handler.onResolved) {
+                handler.resolve(value);
+                return;
+            }
+
+            var ret = handler.onResolved(value);
+            handler.resolve(ret);
+        }
+
+        this.then = function(onResolved) {
+            return new Promise(function(resolve) {
+                handle({
+                    onResolved: onResolved,
+                    resolve: resolve
+                });
+            });
+        };
+
+        fn(resolve);
+    }
+</code></pre>
+
+<p>在这次的代码中，调用<code>then()</code>方法后会返回一个新的生成的<code>promise对象</code>。它具有<code>then()</code>方法，可以继续调用<code>then()</code>，并返回一个新生成的<code>promise</code>对象。如此继续进行下去。这就实现了<code>Promise</code>链式调用。</p>
+
+<p>再来看看具体的代码实现：
+<code>resolve()</code>方法没什么变化，但是<code>handle()</code>方法接收一个<code>handler</code>对象。<code>handler</code>对象有2个属性，一个为<code>onResolved</code>，<code>then()</code>方法里面注入的回调函数，用来对传入的上一个<code>promise</code>传递过来的值进行处理；另一个为<code>resolve</code>，<code>Promise</code>构造函数内部定义的<code>resolve()</code>方法，用来改变<code>Promise</code>状态以及<code>value</code>值。</p>
+
+<p>具体分析下<code>handle()</code>函数：</p>
+
+<pre><code class="language-javascript">    function handle(handler) {
+        if(state === 'pending') {
+            deferred = handler;
+            return;
+        }
+
+        if(!handler.onResolved) {
+            handler.resolve(value);
+            return;
+        }
+
+        var ret = handler.onResolved(value);
+        handler.resolve(ret);
+    }
+</code></pre>
+
+<p>每次调用<code>then()</code>方法新建一个<code>promise</code>对象过程当中，<code>handle({onResolved: onResolved, resolve: resolve})</code>中<code>resolve</code>属性始终是获得的定义过程中对外部<code>resolve</code>方法的引用。即上一次的<code>promise</code>中定义的<code>resolve</code>.</p>
+
+<pre><code>当then()方法里面注入回调函数时，调用onResolved方法并获得返回值ret，传入resolve方法，改变state的值以及更改promise中需要继续传递下去的值。如果onResolved方法中会返回处理过的值，那么下一个promise能拿到这个值，如果onResolved没有返回，传入下一个promise的为undefined**
+</code></pre>
+
+<pre><code class="language-javascript">    doSomething().then(function(result) {
+        console.log('First result', result);
+        return 88;
+    }).then(function(secondResult) {
+        console.log('second result', secondResult);
+    })
+
+    //the output is 
+    //
+    //First result 42
+    //Second result 88
+
+    doSomething().then(function(result) {
+        console.log('First result', result);
+    }).then(function(secondResult) {
+        console.log('Second result', secondResult);
+    })
+
+    //now the output is
+
+    //First result 42
+    //Second result undefined
+</code></pre>
+
+<pre><code>当then()没有注入回调函数时，仍然会调用resolve方法，改变state的值，以及获取上一个promise传递过来的值，并将值传递给下一个promise。
+</code></pre>
+
+<pre><code class="language-javascript">    doSomething().then().then(function(result) {
+        console.log('Got a result', result);
+    });
+
+    //the output is 
+    //
+    //Got a result 42
+</code></pre>
+
+<p>主要是得益于<code>handle()</code>方法中,调用<code>resolve</code>方法获取从上一个<code>promise</code>得到的<code>value</code>以及作为传入下一个<code>promise</code>的<code>value</code>:</p>
+
+<pre><code class="language-javascript">    if(!handler.onResolved) {
+        handler.resolve(value);
+        return;
+    }
+</code></pre>
+
+<pre><code>再每次调用then()方法的过程都会新建一个pending状态的promise，并通过resolve方法改变状态，如果then()方法中注入了回调函数，并返回了值，那么这个值会一直传递下去，如果没有注入回调函数，resolve方法会获取上一个promise传递过来的值，并作为传入下一个promise的值。即then()方法注入的回调函数是可选的。
+</code></pre>
+
+<p>通过再次对<code>Promise构造函数</code>的加强，完成了<code>promise链式调用</code>的功能。</p>
+
+<hr>
+
+<p>对于reject的部分过2天加上。</p>
+        </section>
+
+        <footer class="post-footer">
+
+
+
+            <section class="author">
+                <h4><a href="../author/xrene/">XRene</a></h4>
+
+                    <p>Read <a href="../author/xrene/">more posts</a> by this author.</p>
+                <div class="author-meta">
+                    
+                    
+                </div>
+            </section>
+
+
+            <section class="share">
+                <h4>Share this post</h4>
+                <a class="icon-twitter" href="https://twitter.com/intent/tweet?text=build%20your%20promise%20step%20by%20step&amp;url=http://localhost:2368/build-your-promise-step-by-step/" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                    <span class="hidden">Twitter</span>
+                </a>
+                <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http://localhost:2368/build-your-promise-step-by-step/" onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                    <span class="hidden">Facebook</span>
+                </a>
+                <a class="icon-google-plus" href="https://plus.google.com/share?url=http://localhost:2368/build-your-promise-step-by-step/" onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+                    <span class="hidden">Google+</span>
+                </a>
+            </section>
+
+        </footer>
+
+    </article>
+</main>
+
+<aside class="read-next">
+    <a class="read-next-story prev no-cover" href="../liu-lan-qi-huan-cun-sui-sui-nian/">
+        <section class="post">
+            <h2>浏览器缓存碎碎念</h2>
+            <p>浏览器缓存技术是提升前端性能一个非常重要的手段。在当前浏览器各方面性能都大幅提升的情况下，前端性能的瓶颈更多的集中在资源请求方面。 原理 说浏览器缓存，其实就是在说： 浏览器实现缓存的机制 HTTP通讯协议定义的关于缓存的字段内容 先让我们回顾下，当我们在浏览器的地址栏输入URL之后发生哪些过程： DNS服务器解析域名，找到对应服务器的IP地址;   和服务器建立TCP连接;   基于TCP连接进行HTTP的Req/Res，服务器会根据HTTP请求到数据服务器取出相应的资源，并返回给前端；   浏览器获取HTML文档，并开始解析；…</p>
+        </section>
+    </a>
+</aside>
+
+
+
+        <footer class="site-footer clearfix">
+            <section class="copyright"><a href="../">Sweet Sugar</a> © 2016</section>
+            <section class="poweredby">Proudly published with <a href="https://ghost.org">Ghost</a></section>
+        </footer>
+
+    </div>
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    
+
+    <script type="text/javascript" src="../assets/js/jquery.fitvids.js?v=72b7b54e69"></script>
+    <script type="text/javascript" src="../assets/js/index.js?v=72b7b54e69"></script>
+
+</body>
