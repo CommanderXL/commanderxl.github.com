@@ -1,0 +1,424 @@
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" version="2.0"><channel><title>Sweet Sugar</title><description>Thoughts, stories and ideas.</description><link>http://localhost:2368/</link><generator>Ghost 0.7</generator><lastBuildDate>Fri, 13 May 2016 10:37:00 GMT</lastBuildDate><atom:link href="http://localhost:2368/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title>build your promise step by step</title><description>&lt;p&gt;最近看了一篇关于&lt;code&gt;Promise&lt;/code&gt;内部实现原理的文章&lt;a href="http://www.mattgreer.org/articles/promises-in-wicked-detail/"&gt;Promise in wicked detail&lt;/a&gt;。作者从简明的例子入手，一步一步的构建健壮的&lt;code&gt;Promise&lt;/code&gt;实现。我就拿作者文中的代码实例梳理下文章的核心内容。&lt;/p&gt;
+
+&lt;p&gt;大家一定看到过嵌套很深回调函数，那么如何在保证代码流程才能将这些纵向嵌套的代码变成横向偏平的呢？&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    doSomething(function(value) {
+        console.log('Got a value:' + value);
+    })
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;to this&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    doSomething().then(function(value) {
+        console.log('Got a value:' + value);
+    })
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;那么我们就应该在定义&lt;code&gt;doSomething&lt;/code&gt;函数的时候做出相应的变化&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    function doSomething(callback) {
+        var value = 42;
+        callback(value);
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;to this&lt;/p&gt;</description><link>http://localhost:2368/build-your-promise-step-by-step/</link><guid isPermaLink="false">54352608-3b2a-41d1-8860-77d55ad54987</guid><category>Promise</category><dc:creator>XRene</dc:creator><pubDate>Sun, 10 Apr 2016 05:13:00 GMT</pubDate><content:encoded>&lt;p&gt;最近看了一篇关于&lt;code&gt;Promise&lt;/code&gt;内部实现原理的文章&lt;a href="http://www.mattgreer.org/articles/promises-in-wicked-detail/"&gt;Promise in wicked detail&lt;/a&gt;。作者从简明的例子入手，一步一步的构建健壮的&lt;code&gt;Promise&lt;/code&gt;实现。我就拿作者文中的代码实例梳理下文章的核心内容。&lt;/p&gt;
+
+&lt;p&gt;大家一定看到过嵌套很深回调函数，那么如何在保证代码流程才能将这些纵向嵌套的代码变成横向偏平的呢？&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    doSomething(function(value) {
+        console.log('Got a value:' + value);
+    })
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;to this&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    doSomething().then(function(value) {
+        console.log('Got a value:' + value);
+    })
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;那么我们就应该在定义&lt;code&gt;doSomething&lt;/code&gt;函数的时候做出相应的变化&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    function doSomething(callback) {
+        var value = 42;
+        callback(value);
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;to this&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    function doSomething() {
+        return {
+            then: function(callback) {
+                var value = 42;
+                callback(42);
+            }
+        }
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id="definingthepromisetype"&gt;Defining the Promise type&lt;/h2&gt;
+
+&lt;p&gt;首先来看一段定义简单&lt;code&gt;Promise&lt;/code&gt;构造函数的代码：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    function Promise(fn) {
+        var callback = null;
+        this.then = function(cb) {
+            callback = cb;
+        }
+
+        function resolve(value) {
+            callback(value)
+        }
+
+        fn(resolve);
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;然后重写&lt;code&gt;doSomething()&lt;/code&gt;函数：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    function doSomething() {
+        return new Promise(function(resolve) {
+            var value = 42;
+            resolve(value);
+        })
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;重新定义后的&lt;code&gt;doSomething()&lt;/code&gt;函数执行后返回得到一个&lt;code&gt;promise实例&lt;/code&gt;，实例上有&lt;code&gt;then()&lt;/code&gt;方法，可以接受回调函数。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    doSomething().then(function(value) {
+        console.log(value);
+    })
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;但是上面的代码会报错&lt;code&gt;(callback is undefined)&lt;/code&gt;，是因为：&lt;strong&gt;resolve中的callback要早于then()方法中的callback的赋值操作&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;那么对&lt;code&gt;Promise&lt;/code&gt;构造函数稍微处理下，把同步的代码使用&lt;code&gt;setTimeout&lt;/code&gt;来hack下，改变代码的执行顺序，使得&lt;code&gt;resolve&lt;/code&gt;函数中的&lt;code&gt;callback&lt;/code&gt;对&lt;code&gt;value&lt;/code&gt;进行处理前被赋值了。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    function Promise(fn) {
+        var callback = null;
+        this.then = function(cb) {
+            callback = cb;
+        }
+
+        function resolve(value) {
+            setTimeout(function() {
+                callback(value);
+            }, 1)
+        }
+        fn(resolve);
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这里通过&lt;code&gt;setTimeout&lt;/code&gt;异步函数改变了代码执行的顺序，确保&lt;code&gt;callback&lt;/code&gt;被调用前已经被赋值成&lt;code&gt;cb&lt;/code&gt;。&lt;/p&gt;
+
+&lt;p&gt;重新调用：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    doSomething().then(function(value) {
+        console.log(value);
+    })
+    // 42
+    //正常执行。
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;但是定义&lt;code&gt;Promise&lt;/code&gt;构造函数的代码还是有问题的，因为如果仅仅是调用&lt;code&gt;then()&lt;/code&gt;方法而注入回调的话，内部的&lt;code&gt;callback&lt;/code&gt;仍然是&lt;code&gt;null&lt;/code&gt;。同样不能正常的执行。&lt;/p&gt;
+
+&lt;p&gt;别急，慢慢来。&lt;/p&gt;
+
+&lt;h2 id="promiseshavestate"&gt;Promises have state&lt;/h2&gt;
+
+&lt;p&gt;事实上&lt;code&gt;Promise&lt;/code&gt;是有状态的:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;pending&lt;/li&gt;
+&lt;li&gt;resolved&lt;/li&gt;
+&lt;li&gt;rejected&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;code&gt;pending =&amp;gt; resolved&lt;/code&gt; 或者 &lt;code&gt;pending =&amp;gt; rejected&lt;/code&gt;。状态一旦发生改变，不可逆。接下来，让我们在&lt;code&gt;Promise&lt;/code&gt;的构造函数里面加入&lt;code&gt;state&lt;/code&gt;，使用&lt;code&gt;state&lt;/code&gt;来控制整个代码流程。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    function Promise(fn) {
+        var state = 'pending', 
+            value, 
+            deferred;
+
+        function resolve(newValue) {
+            state = 'resolved';
+            value = newValue;
+
+            if(deferred) {
+                handle(deferred);
+            }
+        }
+
+        function handle(onResolved) {
+            if(state === 'pending') {
+                deferred = onResolved;
+                return ;
+            }
+
+            onResolved(value);
+        }
+
+        this.then = function(onResolved) {
+            handle(onResolved);
+        }
+
+        fn(resolve);
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;代码变的比之前更加复杂。但是现在使用&lt;code&gt;state&lt;/code&gt;来控制代码的流程。&lt;code&gt;then()方法&lt;/code&gt;和&lt;code&gt;resolve()方法&lt;/code&gt;将控制权交给了新的方法&lt;code&gt;handle()&lt;/code&gt;，由&lt;code&gt;handle()&lt;/code&gt;方法来根据&lt;code&gt;state&lt;/code&gt;的值进行流程操作:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;如果&lt;code&gt;state&lt;/code&gt;为&lt;code&gt;pending&lt;/code&gt;状态，即在&lt;code&gt;resolve()&lt;/code&gt;之前调用了&lt;code&gt;then()&lt;/code&gt;方法，那么会将&lt;code&gt;onResolved&lt;/code&gt;回调赋值给一个&lt;code&gt;deferred延迟对象&lt;/code&gt;，&lt;code&gt;deferred对象&lt;/code&gt;将这个回调保存起来，稍后当&lt;code&gt;resolve()&lt;/code&gt;调用时,&lt;code&gt;pending&lt;/code&gt;状态变为&lt;code&gt;resolved&lt;/code&gt;,并调用&lt;code&gt;deferred对象&lt;/code&gt;。&lt;/li&gt;
+&lt;li&gt;如果在&lt;code&gt;then()&lt;/code&gt;方法前调用&lt;code&gt;resolve()&lt;/code&gt;方法，&lt;code&gt;pending&lt;/code&gt;状态变为&lt;code&gt;resolved&lt;/code&gt;，然后调用&lt;code&gt;then()&lt;/code&gt;里面注入的回调&lt;code&gt;onResolved&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;通过以上的代码，&lt;code&gt;promise&lt;/code&gt;可以任意次数的调用&lt;code&gt;then()&lt;/code&gt;方法：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    var promise = doSomething();
+
+    promise.then(function(value) {
+        console.log('Got a value:', value);
+    });
+    // 42
+
+    promise.then(function(value) {
+        console.log('Got the some value again:', value); 
+    });
+    //42
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;但是这样的&lt;code&gt;Promis&lt;/code&gt;e构造函数还是有问题的，大家可以想象下，在调用&lt;code&gt;resolve()&lt;/code&gt;方法前，调用了很多次的&lt;code&gt;then()&lt;/code&gt;方法，那么只有最后一个&lt;code&gt;then()&lt;/code&gt;方法里面注入的&lt;code&gt;callback&lt;/code&gt;才会有用。解决这个问题的方法就是维持一个&lt;code&gt;deferreds队列&lt;/code&gt;，去保存每次&lt;code&gt;then()&lt;/code&gt;方法注入的回调函数。&lt;/p&gt;
+
+&lt;h2 id="chainingpromises"&gt;Chaining Promises&lt;/h2&gt;
+
+&lt;p&gt;下面的代码是最普通不过的promise链式调用：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    getSomeData()
+    .then(filterTheData)
+    .then(processTheData)
+    .then(displayTheData)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code&gt;getSomeData()&lt;/code&gt;方法调用后会返回一个&lt;code&gt;promise对象&lt;/code&gt;，这样便可以调用&lt;code&gt;then()&lt;/code&gt;方法，同样这第一个&lt;code&gt;then()&lt;/code&gt;方法调用后也会返回一个&lt;code&gt;promise&lt;/code&gt;对象。这样才能继续调用&lt;code&gt;then()&lt;/code&gt;方法。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;then()方法总是返回一个promise
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;接下来在代码中加以实现：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    function Promise(fn) {
+        var state = 'pending',
+            value,
+            deferred = null;
+
+        function resolve(newValue) {
+            state = 'resolved';
+            value = newValue;
+
+            if(deferred) {
+                handle(deferred);
+            }
+        }
+
+        function handle(handler) {
+            if(state == 'pending') {
+                deferred = handler;
+                return;
+            }
+
+            if(!handler.onResolved) {
+                handler.resolve(value);
+                return;
+            }
+
+            var ret = handler.onResolved(value);
+            handler.resolve(ret);
+        }
+
+        this.then = function(onResolved) {
+            return new Promise(function(resolve) {
+                handle({
+                    onResolved: onResolved,
+                    resolve: resolve
+                });
+            });
+        };
+
+        fn(resolve);
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;在这次的代码中，调用&lt;code&gt;then()&lt;/code&gt;方法后会返回一个新的生成的&lt;code&gt;promise对象&lt;/code&gt;。它具有&lt;code&gt;then()&lt;/code&gt;方法，可以继续调用&lt;code&gt;then()&lt;/code&gt;，并返回一个新生成的&lt;code&gt;promise&lt;/code&gt;对象。如此继续进行下去。这就实现了&lt;code&gt;Promise&lt;/code&gt;链式调用。&lt;/p&gt;
+
+&lt;p&gt;再来看看具体的代码实现：
+&lt;code&gt;resolve()&lt;/code&gt;方法没什么变化，但是&lt;code&gt;handle()&lt;/code&gt;方法接收一个&lt;code&gt;handler&lt;/code&gt;对象。&lt;code&gt;handler&lt;/code&gt;对象有2个属性，一个为&lt;code&gt;onResolved&lt;/code&gt;，&lt;code&gt;then()&lt;/code&gt;方法里面注入的回调函数，用来对传入的上一个&lt;code&gt;promise&lt;/code&gt;传递过来的值进行处理；另一个为&lt;code&gt;resolve&lt;/code&gt;，&lt;code&gt;Promise&lt;/code&gt;构造函数内部定义的&lt;code&gt;resolve()&lt;/code&gt;方法，用来改变&lt;code&gt;Promise&lt;/code&gt;状态以及&lt;code&gt;value&lt;/code&gt;值。&lt;/p&gt;
+
+&lt;p&gt;具体分析下&lt;code&gt;handle()&lt;/code&gt;函数：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    function handle(handler) {
+        if(state === 'pending') {
+            deferred = handler;
+            return;
+        }
+
+        if(!handler.onResolved) {
+            handler.resolve(value);
+            return;
+        }
+
+        var ret = handler.onResolved(value);
+        handler.resolve(ret);
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;每次调用&lt;code&gt;then()&lt;/code&gt;方法新建一个&lt;code&gt;promise&lt;/code&gt;对象过程当中，&lt;code&gt;handle({onResolved: onResolved, resolve: resolve})&lt;/code&gt;中&lt;code&gt;resolve&lt;/code&gt;属性始终是获得的定义过程中对外部&lt;code&gt;resolve&lt;/code&gt;方法的引用。即上一次的&lt;code&gt;promise&lt;/code&gt;中定义的&lt;code&gt;resolve&lt;/code&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;当then()方法里面注入回调函数时，调用onResolved方法并获得返回值ret，传入resolve方法，改变state的值以及更改promise中需要继续传递下去的值。如果onResolved方法中会返回处理过的值，那么下一个promise能拿到这个值，如果onResolved没有返回，传入下一个promise的为undefined**
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    doSomething().then(function(result) {
+        console.log('First result', result);
+        return 88;
+    }).then(function(secondResult) {
+        console.log('second result', secondResult);
+    })
+
+    //the output is 
+    //
+    //First result 42
+    //Second result 88
+
+    doSomething().then(function(result) {
+        console.log('First result', result);
+    }).then(function(secondResult) {
+        console.log('Second result', secondResult);
+    })
+
+    //now the output is
+
+    //First result 42
+    //Second result undefined
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;当then()没有注入回调函数时，仍然会调用resolve方法，改变state的值，以及获取上一个promise传递过来的值，并将值传递给下一个promise。
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    doSomething().then().then(function(result) {
+        console.log('Got a result', result);
+    });
+
+    //the output is 
+    //
+    //Got a result 42
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;主要是得益于&lt;code&gt;handle()&lt;/code&gt;方法中,调用&lt;code&gt;resolve&lt;/code&gt;方法获取从上一个&lt;code&gt;promise&lt;/code&gt;得到的&lt;code&gt;value&lt;/code&gt;以及作为传入下一个&lt;code&gt;promise&lt;/code&gt;的&lt;code&gt;value&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    if(!handler.onResolved) {
+        handler.resolve(value);
+        return;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;再每次调用then()方法的过程都会新建一个pending状态的promise，并通过resolve方法改变状态，如果then()方法中注入了回调函数，并返回了值，那么这个值会一直传递下去，如果没有注入回调函数，resolve方法会获取上一个promise传递过来的值，并作为传入下一个promise的值。即then()方法注入的回调函数是可选的。
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;通过再次对&lt;code&gt;Promise构造函数&lt;/code&gt;的加强，完成了&lt;code&gt;promise链式调用&lt;/code&gt;的功能。&lt;/p&gt;
+
+&lt;hr&gt;
+
+&lt;p&gt;对于reject的部分过2天加上。&lt;/p&gt;</content:encoded></item><item><title>浏览器缓存碎碎念</title><description>browser cache，浏览器缓存</description><link>http://localhost:2368/liu-lan-qi-huan-cun-sui-sui-nian/</link><guid isPermaLink="false">e6cfddef-49b3-40a7-b78e-7ebccc4d4db3</guid><category>浏览器特性</category><dc:creator>XRene</dc:creator><pubDate>Wed, 06 Apr 2016 14:08:00 GMT</pubDate><content:encoded>&lt;p&gt;浏览器缓存技术是提升前端性能一个非常重要的手段。在当前浏览器各方面性能都大幅提升的情况下，前端性能的瓶颈更多的集中在资源请求方面。&lt;/p&gt;
+
+&lt;h2 id=""&gt;原理&lt;/h2&gt;
+
+&lt;p&gt;说浏览器缓存，其实就是在说：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;浏览器实现缓存的机制&lt;/li&gt;
+&lt;li&gt;HTTP通讯协议定义的关于缓存的字段内容&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;先让我们回顾下，当我们在浏览器的地址栏输入URL之后发生哪些过程：&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;DNS服务器&lt;/code&gt;解析域名，找到对应服务器的&lt;code&gt;IP地址&lt;/code&gt;;  &lt;/li&gt;
+&lt;li&gt;和服务器建立&lt;code&gt;TCP连接&lt;/code&gt;;  &lt;/li&gt;
+&lt;li&gt;基于&lt;code&gt;TCP连接&lt;/code&gt;进行HTTP的&lt;code&gt;Req/Res&lt;/code&gt;，服务器会根据HTTP请求到&lt;code&gt;数据服务器&lt;/code&gt;取出相应的资源，并返回给前端；  &lt;/li&gt;
+&lt;li&gt;浏览器获取HTML文档，并开始&lt;code&gt;解析&lt;/code&gt;；  &lt;/li&gt;
+&lt;li&gt;遇到&lt;code&gt;link&lt;/code&gt;标签，加载&lt;code&gt;href&lt;/code&gt;指向的地址，并解析&lt;code&gt;css&lt;/code&gt;，遇到带有&lt;code&gt;src&lt;/code&gt;属性，且没有声明&lt;code&gt;async或defer&lt;/code&gt;属性的&lt;code&gt;script&lt;/code&gt;标签时，同步加载远程&lt;code&gt;js脚本&lt;/code&gt;，同步解析js脚本，同步执行js脚本，浏览器的&lt;code&gt;GUI渲染&lt;/code&gt;过程处于挂起状态。当js执行完毕后，继续后面的HTML解析的工作；  &lt;/li&gt;
+&lt;li&gt;&lt;code&gt;DOM树&lt;/code&gt;构建完毕，&lt;code&gt;CSS Rules&lt;/code&gt;解析完毕；  &lt;/li&gt;
+&lt;li&gt;由&lt;code&gt;DOM树&lt;/code&gt;和&lt;code&gt;CSS Rules&lt;/code&gt;一起构建&lt;code&gt;Render树&lt;/code&gt;。和&lt;code&gt;DOM树&lt;/code&gt;不一样的地方在于&lt;code&gt;Render树&lt;/code&gt;是带有DOM样式的，&lt;code&gt;伪元素&lt;/code&gt;不会在&lt;code&gt;DOM树&lt;/code&gt;中出现，而会在&lt;code&gt;Render树&lt;/code&gt;中出现。  &lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Render树&lt;/code&gt;构建完毕后开始&lt;code&gt;repaint&lt;/code&gt;和&lt;code&gt;reflow&lt;/code&gt;过程，即&lt;code&gt;渲染&lt;/code&gt;。最后将页面呈现给用户。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;在这些过程当中：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;过程1：远程服务器可能是&lt;code&gt;代理服务器&lt;/code&gt;，代理服务器可进行缓存匹配，可将缓存的资源直接返回给前端，降低对于源服务器的压力，同时还能做均衡负载；&lt;/li&gt;
+&lt;li&gt;过程3：&lt;code&gt;数据服务器&lt;/code&gt;可以进行&lt;code&gt;memcached&lt;/code&gt;，进行数据库层面的缓存，可将上一次的查询结果缓存到内存当中，下次再查询相同的数据时，直接从内容从取出数据；&lt;/li&gt;
+&lt;li&gt;过程5：可以利用&lt;code&gt;浏览器缓存&lt;/code&gt;。这也是本文所讲的主要内容。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;当我访问 SegmentFault 的个人主页时：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://segmentfault.com/img/bVuBrE" alt="图片描述"&gt;&lt;/p&gt;
+
+&lt;p&gt;在浏览器&lt;strong&gt;首次&lt;/strong&gt;加载并解析HTML文档时，会维护一个资源的&lt;code&gt;缓存池&lt;/code&gt;，&lt;code&gt;缓存池&lt;/code&gt;里存放了加载的包括css,js,图片,字体等文件，&lt;code&gt;URL&lt;/code&gt;是这些资源的唯一标识。浏览器会根据&lt;code&gt;HTTP响应字段&lt;/code&gt;来决定这些资源是否能缓存以及缓存的时间等：&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;Expires&lt;/code&gt;字段设置了资源过期的时间。  &lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Cache-control&lt;/code&gt;字段的内容较多，例如no-cache会决定资源不会缓存;max-age指客户机可以接收生存期不大于指定时间（以秒为单位）的响应。具体的内容(图)  &lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Etag&lt;/code&gt;：资源的唯一标识符  &lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Last-Modified&lt;/code&gt;: 资源最后一次修改的时间&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;如果将页面&lt;strong&gt;刷新&lt;/strong&gt;，此时加载同一份HTML文件，同样遇到外联的css，js，图片和字体等文件。此时浏览器首先会从缓存池中寻找，寻找的标记为资源的URL地址。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://segmentfault.com/img/bVuBse" alt="图片描述"&gt;&lt;/p&gt;
+
+&lt;p&gt;如果缓存池中有对应的资源，通过查询&lt;code&gt;Expires字段&lt;/code&gt;和&lt;code&gt;Cache-control字段&lt;/code&gt;的值，如果没有过期，那么会从缓存池中获取资源，不会进行HTTP请求。&lt;/p&gt;
+
+&lt;p&gt;若资源过期，则会进行HTTP请求，此时浏览器会检查缓存池中资源是否具有&lt;code&gt;Etag&lt;/code&gt;和&lt;code&gt;Last-modified&lt;/code&gt;.如果有&lt;code&gt;Etag&lt;/code&gt;字段(资源的唯一标识符，只要发生修改，其值都会发生改变)的内容，那么HTTP请求中会带上&lt;code&gt;If-none-match&lt;/code&gt;字段，其值为&lt;code&gt;Etag&lt;/code&gt;字段的内容，如果有&lt;code&gt;Last-Modified&lt;/code&gt;字段(最后一次修改的时间)，那么HTTP请求会带上&lt;code&gt;If-Modified-Since&lt;/code&gt;字段，其值为&lt;code&gt;Last-modified&lt;/code&gt;字段的内容。服务器根据HTTP请求去匹配&lt;code&gt;If-none-match&lt;/code&gt;和&lt;code&gt;If-Modified-Since&lt;/code&gt;的内容。&lt;/p&gt;
+
+&lt;p&gt;当&lt;code&gt;If-none-match&lt;/code&gt;的内容匹配不成功时，服务器会返回状态码为&lt;code&gt;200 success&lt;/code&gt;的响应及所有的资源内容，并设置新的和缓存相关的字段内容，若匹配成功返回&lt;code&gt;304 Not Modify&lt;/code&gt;响应状态，但是不会返回资源内容。此时浏览器仍然是从资源池中获取资源。&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;If-Modified-Since&lt;/code&gt;的处理方式和&lt;code&gt;If-none-match&lt;/code&gt;相同。&lt;/p&gt;
+
+&lt;p&gt;当以上2个字段在HTTP请求中都存在时，会优先匹配&lt;code&gt;If-None-Match&lt;/code&gt;的内容，只有&lt;strong&gt;相同的情况下才会去匹配&lt;/strong&gt;&lt;code&gt;If-Modified-Since&lt;/code&gt;的内容，来绝对是返回200还是304。&lt;/p&gt;
+
+&lt;h2 id=""&gt;总结&lt;/h2&gt;
+
+&lt;p&gt;页面首次加载&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://segmentfault.com/img/bVuBva" alt="初次加载"&gt;&lt;/p&gt;
+
+&lt;p&gt;页面刷新&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://segmentfault.com/img/bVuBBN" alt="页面刷新"&gt;&lt;/p&gt;
+
+&lt;h2 id=""&gt;实践&lt;/h2&gt;
+
+&lt;p&gt;之前在实习的过程中，对于浏览器缓存所做的工作之一就是每次在发版前通过gulp给资源打上版本号，例如：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;"/css/style.css" =&amp;gt; "/dist/css/style.css?v=1d87bebe"；
+"/js/script1.js" =&amp;gt; "/dist/script1.js?v=61e0be79"；
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这样再去首页去加载这些资源的时候，因为在资源池里找不到对应的URL，因此会发送HTTP请求，从服务器端获取最新的资源。 具体实践过程请自行&lt;code&gt;google&lt;/code&gt;。&lt;/p&gt;
+
+&lt;h2 id=""&gt;参考资料&lt;/h2&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;a href="http://www.cnblogs.com/skynet/archive/2012/11/28/2792503.html"&gt;浏览器缓存机制&lt;/a&gt;  &lt;/li&gt;
+&lt;li&gt;《webkit技术内幕》  &lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.mnot.net/cache_docs/"&gt;HTTP Cache&lt;/a&gt;  &lt;/li&gt;
+&lt;li&gt;&lt;a href="https://developers.google.com/speed/docs/insights/LeverageBrowserCaching#header_2"&gt;Google Develop Http Caching &lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;如果您觉得不错，请我喝杯咖啡吧：
+&lt;img src="http://localhost:2368/content/images/2016/05/FullSizeRender.jpg" alt=""&gt;&lt;/p&gt;</content:encoded></item></channel></rss>

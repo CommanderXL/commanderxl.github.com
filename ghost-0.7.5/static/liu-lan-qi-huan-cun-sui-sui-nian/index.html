@@ -1,16 +1,17 @@
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <title>浏览器缓存碎碎念</title>
-    <meta name="description" content="">
+    <title>cache</title>
+    <meta name="description" content="browser cache，浏览器缓存">
 
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="shortcut icon" href="../favicon.ico">
 
-    <link rel="stylesheet" type="text/css" href="../assets/css/screen.css?v=72b7b54e69">
+    <link rel="stylesheet" type="text/css" href="../assets/css/screen.css?v=01baf7e0be">
     <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic%7COpen+Sans:700,400">
 
     <link rel="canonical" href="index.html">
@@ -18,16 +19,16 @@
     
     <meta property="og:site_name" content="Sweet Sugar">
     <meta property="og:type" content="article">
-    <meta property="og:title" content="浏览器缓存碎碎念">
-    <meta property="og:description" content="浏览器缓存技术是提升前端性能一个非常重要的手段。在当前浏览器各方面性能都大幅提升的情况下，前端性能的瓶颈更多的集中在资源请求方面。 原理 说浏览器缓存，其实就是在说： 浏览器实现缓存的机制 HTTP通讯协议定义的关于缓存的字段内容 先让我们回顾下，当我们在浏览器的地址栏输入URL之后发生哪些过程： DNS服务器解析域名，找到对应服务器的IP地址;   和服务器建立TCP连接;   基于TCP连接进行HTTP的Req/Res，服务器会根据HTTP请求到数据服务器取出相应的资源，并返回给前端；   浏览器获取HTML文档，并开始解析；   遇到link标签，加载href指向的地址，并解析css，遇到带有src属性，且没有声明async或defer属性的script标签时，同步加载远程js脚本，同步解析js脚本，同步执行js脚本，浏览器的GUI渲染过程处于挂起状态。当js执行完毕后，继续后面的HTML解析的工作；   DOM树构建完毕，CSS Rules解析完毕；   由DOM树和CSS Rules一起构建Render树。和DOM树不一样的地方在于Render树是带有DOM样式的，伪元素不会在DOM树中出现，而会在Render树中出现。   Render树构建完毕后开始repaint和reflow过程，即渲染。...">
+    <meta property="og:title" content="cache">
+    <meta property="og:description" content="browser cache，浏览器缓存">
     <meta property="og:url" content="http://localhost:2368/liu-lan-qi-huan-cun-sui-sui-nian/">
     <meta property="article:published_time" content="2016-04-06T14:08:00.000Z">
-    <meta property="article:modified_time" content="2016-04-06T14:30:08.765Z">
+    <meta property="article:modified_time" content="2016-05-13T10:32:24.543Z">
     <meta property="article:tag" content="浏览器特性">
     
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="浏览器缓存碎碎念">
-    <meta name="twitter:description" content="浏览器缓存技术是提升前端性能一个非常重要的手段。在当前浏览器各方面性能都大幅提升的情况下，前端性能的瓶颈更多的集中在资源请求方面。 原理 说浏览器缓存，其实就是在说： 浏览器实现缓存的机制 HTTP通讯协议定义的关于缓存的字段内容 先让我们回顾下，当我们在浏览器的地址栏输入URL之后发生哪些过程： DNS服务器解析域名，找到对应服务器的IP地址;   和服务器建立TCP连接;   基于TCP连接进行HTTP的Req/Res，服务器会根据HTTP请求到数据服务器取出相应的资源，并返回给前端；   浏览器获取HTML文档，并开始解析；   遇到link标签，加载href指向的地址，并解析css，遇到带有src属性，且没有声明async或defer属性的script标签时，同步加载远程js脚本，同步解析js脚本，同步执行js脚本，浏览器的GUI渲染过程处于挂起状态。当js执行完毕后，继续后面的HTML解析的工作；   DOM树构建完毕，CSS Rules解析完毕；   由DOM树和CSS Rules一起构建Render树。和DOM树不一样的地方在于Render树是带有DOM样式的，伪元素不会在DOM树中出现，而会在Render树中出现。   Render树构建完毕后开始repaint和reflow过程，即渲染。...">
+    <meta name="twitter:title" content="cache">
+    <meta name="twitter:description" content="browser cache，浏览器缓存">
     <meta name="twitter:url" content="http://localhost:2368/liu-lan-qi-huan-cun-sui-sui-nian/">
     
     <script type="application/ld+json">
@@ -42,12 +43,12 @@
         "sameAs": null,
         "description": null
     },
-    "headline": "浏览器缓存碎碎念",
+    "headline": "cache",
     "url": "http://localhost:2368/liu-lan-qi-huan-cun-sui-sui-nian/",
     "datePublished": "2016-04-06T14:08:00.000Z",
-    "dateModified": "2016-04-06T14:30:08.765Z",
+    "dateModified": "2016-05-13T10:32:24.543Z",
     "keywords": "浏览器特性",
-    "description": "浏览器缓存技术是提升前端性能一个非常重要的手段。在当前浏览器各方面性能都大幅提升的情况下，前端性能的瓶颈更多的集中在资源请求方面。 原理 说浏览器缓存，其实就是在说： 浏览器实现缓存的机制 HTTP通讯协议定义的关于缓存的字段内容 先让我们回顾下，当我们在浏览器的地址栏输入URL之后发生哪些过程： DNS服务器解析域名，找到对应服务器的IP地址;   和服务器建立TCP连接;   基于TCP连接进行HTTP的Req/Res，服务器会根据HTTP请求到数据服务器取出相应的资源，并返回给前端；   浏览器获取HTML文档，并开始解析；   遇到link标签，加载href指向的地址，并解析css，遇到带有src属性，且没有声明async或defer属性的script标签时，同步加载远程js脚本，同步解析js脚本，同步执行js脚本，浏览器的GUI渲染过程处于挂起状态。当js执行完毕后，继续后面的HTML解析的工作；   DOM树构建完毕，CSS Rules解析完毕；   由DOM树和CSS Rules一起构建Render树。和DOM树不一样的地方在于Render树是带有DOM样式的，伪元素不会在DOM树中出现，而会在Render树中出现。   Render树构建完毕后开始repaint和reflow过程，即渲染。..."
+    "description": "browser cache，浏览器缓存"
 }
     </script>
 
@@ -179,6 +180,9 @@
 <li><a href="https://www.mnot.net/cache_docs/">HTTP Cache</a>  </li>
 <li><a href="https://developers.google.com/speed/docs/insights/LeverageBrowserCaching#header_2">Google Develop Http Caching </a></li>
 </ol>
+
+<p>如果您觉得不错，请我喝杯咖啡吧：
+<img src="../content/images/2016/05/FullSizeRender.jpg" alt=""></p>
         </section>
 
         <footer class="post-footer">
@@ -235,7 +239,7 @@
     <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
     
 
-    <script type="text/javascript" src="../assets/js/jquery.fitvids.js?v=72b7b54e69"></script>
-    <script type="text/javascript" src="../assets/js/index.js?v=72b7b54e69"></script>
+    <script type="text/javascript" src="../assets/js/jquery.fitvids.js?v=01baf7e0be"></script>
+    <script type="text/javascript" src="../assets/js/index.js?v=01baf7e0be"></script>
 
 </body>
