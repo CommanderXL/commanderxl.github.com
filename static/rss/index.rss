@@ -1,4 +1,4 @@
-<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" version="2.0"><channel><title>Sweet Sugar</title><description>Thoughts, stories and ideas.</description><link>http://localhost:2368/</link><generator>Ghost 0.7</generator><lastBuildDate>Sun, 10 Apr 2016 05:19:15 GMT</lastBuildDate><atom:link href="http://localhost:2368/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title>build your promise step by step</title><description>&lt;p&gt;最近看了一篇关于&lt;code&gt;Promise&lt;/code&gt;内部实现原理的文章&lt;a href="http://www.mattgreer.org/articles/promises-in-wicked-detail/"&gt;Promise in wicked detail&lt;/a&gt;。作者从简明的例子入手，一步一步的构建健壮的&lt;code&gt;Promise&lt;/code&gt;实现。我就拿作者文中的代码实例梳理下文章的核心内容。&lt;/p&gt;
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" version="2.0"><channel><title>Sweet Sugar</title><description>Thoughts, stories and ideas.</description><link>http://localhost:2368/</link><generator>Ghost 0.7</generator><lastBuildDate>Fri, 13 May 2016 10:37:00 GMT</lastBuildDate><atom:link href="http://localhost:2368/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title>build your promise step by step</title><description>&lt;p&gt;最近看了一篇关于&lt;code&gt;Promise&lt;/code&gt;内部实现原理的文章&lt;a href="http://www.mattgreer.org/articles/promises-in-wicked-detail/"&gt;Promise in wicked detail&lt;/a&gt;。作者从简明的例子入手，一步一步的构建健壮的&lt;code&gt;Promise&lt;/code&gt;实现。我就拿作者文中的代码实例梳理下文章的核心内容。&lt;/p&gt;
 
 &lt;p&gt;大家一定看到过嵌套很深回调函数，那么如何在保证代码流程才能将这些纵向嵌套的代码变成横向偏平的呢？&lt;/p&gt;
 
@@ -332,25 +332,7 @@
 
 &lt;hr&gt;
 
-&lt;p&gt;对于reject的部分过2天加上。&lt;/p&gt;</content:encoded></item><item><title>浏览器缓存碎碎念</title><description>&lt;p&gt;浏览器缓存技术是提升前端性能一个非常重要的手段。在当前浏览器各方面性能都大幅提升的情况下，前端性能的瓶颈更多的集中在资源请求方面。&lt;/p&gt;
-
-&lt;h2 id=""&gt;原理&lt;/h2&gt;
-
-&lt;p&gt;说浏览器缓存，其实就是在说：&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;浏览器实现缓存的机制&lt;/li&gt;
-&lt;li&gt;HTTP通讯协议定义的关于缓存的字段内容&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;先让我们回顾下，当我们在浏览器的地址栏输入URL之后发生哪些过程：&lt;/p&gt;
-
-&lt;ol&gt;
-&lt;li&gt;&lt;code&gt;DNS服务器&lt;/code&gt;解析域名，找到对应服务器的&lt;code&gt;IP地址&lt;/code&gt;;  &lt;/li&gt;
-&lt;li&gt;和服务器建立&lt;code&gt;TCP连接&lt;/code&gt;;  &lt;/li&gt;
-&lt;li&gt;基于&lt;code&gt;TCP连接&lt;/code&gt;进行HTTP的&lt;code&gt;Req/Res&lt;/code&gt;，服务器会根据HTTP请求到&lt;code&gt;数据服务器&lt;/code&gt;取出相应的资源，并返回给前端；  &lt;/li&gt;
-&lt;li&gt;浏览器获取HTML文档，并开始&lt;code&gt;解析&lt;/code&gt;；  &lt;/li&gt;
-&lt;li&gt;遇到&lt;code&gt;link&lt;/code&gt;标签，加载&lt;code&gt;href&lt;/code&gt;指向的地址，并解析&lt;code&gt;css&lt;/code&gt;，遇到带有&lt;code&gt;src&lt;/code&gt;属性，且没有声明&lt;code&gt;async或defer&lt;/code&gt;属性的&lt;code&gt;script&lt;/code&gt;标签时，同步加载远程&lt;code&gt;js脚本&lt;/code&gt;，同步解析js脚本，同步执行js脚本，浏览器的&lt;code&gt;GUI渲染&lt;/code&gt;&lt;/li&gt;&lt;/ol&gt;</description><link>http://localhost:2368/liu-lan-qi-huan-cun-sui-sui-nian/</link><guid isPermaLink="false">e6cfddef-49b3-40a7-b78e-7ebccc4d4db3</guid><category>浏览器特性</category><dc:creator>XRene</dc:creator><pubDate>Wed, 06 Apr 2016 14:08:00 GMT</pubDate><content:encoded>&lt;p&gt;浏览器缓存技术是提升前端性能一个非常重要的手段。在当前浏览器各方面性能都大幅提升的情况下，前端性能的瓶颈更多的集中在资源请求方面。&lt;/p&gt;
+&lt;p&gt;对于reject的部分过2天加上。&lt;/p&gt;</content:encoded></item><item><title>浏览器缓存碎碎念</title><description>browser cache，浏览器缓存</description><link>http://localhost:2368/liu-lan-qi-huan-cun-sui-sui-nian/</link><guid isPermaLink="false">e6cfddef-49b3-40a7-b78e-7ebccc4d4db3</guid><category>浏览器特性</category><dc:creator>XRene</dc:creator><pubDate>Wed, 06 Apr 2016 14:08:00 GMT</pubDate><content:encoded>&lt;p&gt;浏览器缓存技术是提升前端性能一个非常重要的手段。在当前浏览器各方面性能都大幅提升的情况下，前端性能的瓶颈更多的集中在资源请求方面。&lt;/p&gt;
 
 &lt;h2 id=""&gt;原理&lt;/h2&gt;
 
@@ -436,4 +418,7 @@
 &lt;li&gt;《webkit技术内幕》  &lt;/li&gt;
 &lt;li&gt;&lt;a href="https://www.mnot.net/cache_docs/"&gt;HTTP Cache&lt;/a&gt;  &lt;/li&gt;
 &lt;li&gt;&lt;a href="https://developers.google.com/speed/docs/insights/LeverageBrowserCaching#header_2"&gt;Google Develop Http Caching &lt;/a&gt;&lt;/li&gt;
-&lt;/ol&gt;</content:encoded></item></channel></rss>
+&lt;/ol&gt;
+
+&lt;p&gt;如果您觉得不错，请我喝杯咖啡吧：
+&lt;img src="http://localhost:2368/content/images/2016/05/FullSizeRender.jpg" alt=""&gt;&lt;/p&gt;</content:encoded></item></channel></rss>
