@@ -1,38 +1,4 @@
-<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" version="2.0"><channel><title>Sweet Sugar</title><description>Thoughts, stories and ideas.</description><link>http://localhost:2368/</link><generator>Ghost 0.7</generator><lastBuildDate>Mon, 16 May 2016 02:12:03 GMT</lastBuildDate><atom:link href="http://localhost:2368/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title>constructor, prototype, __proto__ 详解</title><description>&lt;p&gt;本文为了解决以下问题：&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;__proto__&lt;/code&gt;(实际原型)和&lt;code&gt;prototype&lt;/code&gt;(原型属性)不一样！！！&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;constructor&lt;/code&gt;属性(原型对象中包含这个属性，实例当中也同样会继承这个属性)&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;prototype&lt;/code&gt;属性(&lt;strong&gt;&lt;code&gt;constructor.prototype&lt;/code&gt;原型对象&lt;/strong&gt;)&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;__proto__&lt;/code&gt;属性(&lt;strong&gt;实例指向原型对象的指针&lt;/strong&gt;)&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;首先弄清楚几个概念：&lt;/p&gt;
-
-&lt;h2 id=""&gt;什么是对象&lt;/h2&gt;
-
-&lt;p&gt;若干属性的集合&lt;/p&gt;
-
-&lt;h2 id=""&gt;什么是原型？&lt;/h2&gt;
-
-&lt;p&gt;原型是一个&lt;strong&gt;对象&lt;/strong&gt;，其他对象可以通过它实现继承。&lt;/p&gt;
-
-&lt;h2 id=""&gt;哪些对象有原型？&lt;/h2&gt;
-
-&lt;p&gt;所有的对象在默认情况下都有一个原型，因为原型本身也是对象，所以每个原型自身又有一个原型（只有一种例外，默认的对象原型在原型链的顶端）&lt;/p&gt;
-
-&lt;h2 id=""&gt;任何一个对象都可以成为原型&lt;/h2&gt;
-
-&lt;p&gt;接下来就是最核心的内容：&lt;/p&gt;
-
-&lt;h2 id="constructor"&gt;constructor 属性&lt;/h2&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;&lt;code&gt;constructor&lt;/code&gt;属性始终指向创建当前对象的构造函数。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;pre&gt;&lt;code class="language-javascript"&gt;    var arr=[1,2,3];
-    console.log(arr.constructor); //输出 function Array(&lt;/code&gt;&lt;/pre&gt;</description><link>http://localhost:2368/constructor-prototype-__proto__-xiang-jie/</link><guid isPermaLink="false">92f6b639-0999-46a6-9497-3dbed3f9aab4</guid><dc:creator>XRene</dc:creator><pubDate>Mon, 16 May 2016 02:11:19 GMT</pubDate><content:encoded>&lt;p&gt;本文为了解决以下问题：&lt;/p&gt;
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" version="2.0"><channel><title>Sweet Sugar</title><description>Thoughts, stories and ideas.</description><link>http://localhost:2368/</link><generator>Ghost 0.7</generator><lastBuildDate>Mon, 16 May 2016 02:14:09 GMT</lastBuildDate><atom:link href="http://localhost:2368/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title>constructor, prototype, __proto__ 详解</title><description>构造函数,原型,原型对象,constructor,prototype,__proto__</description><link>http://localhost:2368/constructor-prototype-__proto__-xiang-jie/</link><guid isPermaLink="false">92f6b639-0999-46a6-9497-3dbed3f9aab4</guid><category>constructor</category><category>js</category><dc:creator>XRene</dc:creator><pubDate>Mon, 16 May 2016 02:11:19 GMT</pubDate><content:encoded>&lt;p&gt;本文为了解决以下问题：&lt;/p&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;code&gt;__proto__&lt;/code&gt;(实际原型)和&lt;code&gt;prototype&lt;/code&gt;(原型属性)不一样！！！&lt;/li&gt;
