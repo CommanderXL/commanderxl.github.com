@@ -1,4 +1,249 @@
-<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" version="2.0"><channel><title>Sweet Sugar</title><description>Thoughts, stories and ideas.</description><link>http://localhost:2368/</link><generator>Ghost 0.7</generator><lastBuildDate>Fri, 13 May 2016 10:37:00 GMT</lastBuildDate><atom:link href="http://localhost:2368/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title>build your promise step by step</title><description>&lt;p&gt;最近看了一篇关于&lt;code&gt;Promise&lt;/code&gt;内部实现原理的文章&lt;a href="http://www.mattgreer.org/articles/promises-in-wicked-detail/"&gt;Promise in wicked detail&lt;/a&gt;。作者从简明的例子入手，一步一步的构建健壮的&lt;code&gt;Promise&lt;/code&gt;实现。我就拿作者文中的代码实例梳理下文章的核心内容。&lt;/p&gt;
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" version="2.0"><channel><title>Sweet Sugar</title><description>Thoughts, stories and ideas.</description><link>http://localhost:2368/</link><generator>Ghost 0.7</generator><lastBuildDate>Mon, 16 May 2016 02:12:03 GMT</lastBuildDate><atom:link href="http://localhost:2368/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title>constructor, prototype, __proto__ 详解</title><description>&lt;p&gt;本文为了解决以下问题：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;__proto__&lt;/code&gt;(实际原型)和&lt;code&gt;prototype&lt;/code&gt;(原型属性)不一样！！！&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;constructor&lt;/code&gt;属性(原型对象中包含这个属性，实例当中也同样会继承这个属性)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;prototype&lt;/code&gt;属性(&lt;strong&gt;&lt;code&gt;constructor.prototype&lt;/code&gt;原型对象&lt;/strong&gt;)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;__proto__&lt;/code&gt;属性(&lt;strong&gt;实例指向原型对象的指针&lt;/strong&gt;)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;首先弄清楚几个概念：&lt;/p&gt;
+
+&lt;h2 id=""&gt;什么是对象&lt;/h2&gt;
+
+&lt;p&gt;若干属性的集合&lt;/p&gt;
+
+&lt;h2 id=""&gt;什么是原型？&lt;/h2&gt;
+
+&lt;p&gt;原型是一个&lt;strong&gt;对象&lt;/strong&gt;，其他对象可以通过它实现继承。&lt;/p&gt;
+
+&lt;h2 id=""&gt;哪些对象有原型？&lt;/h2&gt;
+
+&lt;p&gt;所有的对象在默认情况下都有一个原型，因为原型本身也是对象，所以每个原型自身又有一个原型（只有一种例外，默认的对象原型在原型链的顶端）&lt;/p&gt;
+
+&lt;h2 id=""&gt;任何一个对象都可以成为原型&lt;/h2&gt;
+
+&lt;p&gt;接下来就是最核心的内容：&lt;/p&gt;
+
+&lt;h2 id="constructor"&gt;constructor 属性&lt;/h2&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code&gt;constructor&lt;/code&gt;属性始终指向创建当前对象的构造函数。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    var arr=[1,2,3];
+    console.log(arr.constructor); //输出 function Array(&lt;/code&gt;&lt;/pre&gt;</description><link>http://localhost:2368/constructor-prototype-__proto__-xiang-jie/</link><guid isPermaLink="false">92f6b639-0999-46a6-9497-3dbed3f9aab4</guid><dc:creator>XRene</dc:creator><pubDate>Mon, 16 May 2016 02:11:19 GMT</pubDate><content:encoded>&lt;p&gt;本文为了解决以下问题：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;__proto__&lt;/code&gt;(实际原型)和&lt;code&gt;prototype&lt;/code&gt;(原型属性)不一样！！！&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;constructor&lt;/code&gt;属性(原型对象中包含这个属性，实例当中也同样会继承这个属性)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;prototype&lt;/code&gt;属性(&lt;strong&gt;&lt;code&gt;constructor.prototype&lt;/code&gt;原型对象&lt;/strong&gt;)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;__proto__&lt;/code&gt;属性(&lt;strong&gt;实例指向原型对象的指针&lt;/strong&gt;)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;首先弄清楚几个概念：&lt;/p&gt;
+
+&lt;h2 id=""&gt;什么是对象&lt;/h2&gt;
+
+&lt;p&gt;若干属性的集合&lt;/p&gt;
+
+&lt;h2 id=""&gt;什么是原型？&lt;/h2&gt;
+
+&lt;p&gt;原型是一个&lt;strong&gt;对象&lt;/strong&gt;，其他对象可以通过它实现继承。&lt;/p&gt;
+
+&lt;h2 id=""&gt;哪些对象有原型？&lt;/h2&gt;
+
+&lt;p&gt;所有的对象在默认情况下都有一个原型，因为原型本身也是对象，所以每个原型自身又有一个原型（只有一种例外，默认的对象原型在原型链的顶端）&lt;/p&gt;
+
+&lt;h2 id=""&gt;任何一个对象都可以成为原型&lt;/h2&gt;
+
+&lt;p&gt;接下来就是最核心的内容：&lt;/p&gt;
+
+&lt;h2 id="constructor"&gt;constructor 属性&lt;/h2&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code&gt;constructor&lt;/code&gt;属性始终指向创建当前对象的构造函数。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    var arr=[1,2,3];
+    console.log(arr.constructor); //输出 function Array(){}
+    var a={};
+    console.log(arr.constructor);//输出 function Object(){}
+    var bool=false;
+    console.log(bool.constructor);//输出 function Boolean(){}
+    var name="hello";
+    console.log(name.constructor);//输出 function String(){}
+    var sayName=function(){}
+    console.log(sayName.constrctor)// 输出 function Function(){}
+
+    //接下来通过构造函数创建instance
+    function A(){}
+    var a=new A();
+    console.log(a.constructor); //输出 function A(){}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;以上部分即解释了任何一个对象都有constructor属性，指向创建这个对象的构造函数&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h2 id="prototype"&gt;prototype属性&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;注意：prototype是每个&lt;code&gt;函数对象&lt;/code&gt;都具有的属性，被称为原型对象，而&lt;code&gt;__proto__&lt;/code&gt;属性才是每个对象才有的属性。一旦原型对象被赋予属性和方法,那么由相应的构造函数创建的实例会继承&lt;code&gt;prototype&lt;/code&gt;上的属性和方法&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    //constructor : A
+    //instance : a
+    function A(){}
+    var a=new A();
+
+    A.prototype.name="xl";
+    A.prototype.sayName=function(){
+        console.log(this.name);
+    }
+
+    console.log(a.name);// "xl"
+    a.sayName();// "xl"
+
+    //那么由constructor创建的instance会继承prototype上的属性和方法
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id="constructorprototype"&gt;constructor属性和prototype属性&lt;/h2&gt;
+
+&lt;p&gt;每个函数都有&lt;code&gt;prototype&lt;/code&gt;属性，而这个&lt;code&gt;prototype&lt;/code&gt;的&lt;code&gt;constructor&lt;/code&gt;属性会指向这个函数。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    function Person(name){
+        this.name=name;
+    }
+    Person.prototype.sayName=function(){
+        console.log(this.name);
+    }
+
+    var person=new Person("xl");
+
+    console.log(person.constructor); //输出 function Person(){}
+    console.log(Person.prototype.constructor);//输出 function Person(){}
+    console.log(Person.constructor); //输出 function Function(){}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;如果我们&lt;strong&gt;重写&lt;/strong&gt;(&lt;strong&gt;重新定义&lt;/strong&gt;)这个&lt;code&gt;Person.prototype&lt;/code&gt;属性，那么&lt;code&gt;constructor&lt;/code&gt;属性的指向就会发生改变了。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    Person.prototype={
+        sayName:function(){
+            console.log(this.name);
+        }
+    }
+
+    console.log(person.constructor==Person); //输出 false (这里为什么会输出false后面会讲)
+    console.log(Person.constructor==Person); //输出 false
+
+    console.log(Person.prototype.constructor);// 输出 function Object(){}  
+    //这里为什么会输出function Object(){}
+    //还记得之前说过constructor属性始终指向创建这个对象的构造函数吗？
+
+    Person.prototype={
+        sayName:function(){
+            console.log(this.name);
+        }
+    }
+    //这里实际上是对原型对象的重写：
+    Person.prototype=new Object(){
+        sayName:function(){
+            console.log(this.name);
+        }
+    }
+    //看到了吧。现在Person.prototype.constructor属性实际上是指向Object的。
+
+    //那么我如何能将constructor属性再次指向Person呢？
+    Person.prototype.constructor=Person;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;接下来解释为什么,看下面的例子&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    function Person(name){
+        this.name = name;
+    }
+
+    var personOne=new Person("xl");
+
+    Person.prototype = {
+        sayName: function(){
+            console.log(this.name);
+        }
+    };
+
+    var personTwo = new Person('XL');
+
+    console.log(personOne.constructor == Person); //输出true
+    console.log(personTwo.constructor == Person); //输出false   
+    //大家可能会对这个地方产生疑惑？为何会第二个会输出false,personTwo不也是由Person创建的吗？这个地方应该要输出true啊？
+    //这里就涉及到了JS里面的原型继承
+    //这个地方是因为person实例继承了Person.prototype原型对象的所有的方法和属性，包括constructor属性。当Person.prototype的constructor发生变化的时候，相应的person实例上的constructor属性也会发生变化。所以第二个会输出false;
+    //当然第一个是输出true，因为改变构造函数的prototype属性是在personOne被创建出来之后。
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;接下解释&lt;code&gt;__proto__&lt;/code&gt;和&lt;code&gt;prototype&lt;/code&gt;属性
+同样拿上面的代码来解释:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    function Person(name){
+        this.name=name;
+    }
+    Person.prototype.sayName=function(){
+        console.log(this.name);
+    }
+    var person=new Person("xl");
+    person.sayName(); //输出 "xl"
+
+    //constructor : Person
+    //instance : person
+    //prototype : Person.prototype
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;首先给构造函数的原型对象&lt;code&gt;Person.prototype&lt;/code&gt;赋给&lt;code&gt;sayName&lt;/code&gt;方法，由构造函数&lt;code&gt;Person&lt;/code&gt;创建的实例&lt;code&gt;person&lt;/code&gt;会继承原型对象上的&lt;code&gt;sayName&lt;/code&gt;方法。&lt;/p&gt;
+
+&lt;h3 id=""&gt;为什么会继承原型对象的方法？&lt;/h3&gt;
+
+&lt;p&gt;因为ECMAscript的发明者为了简化这门语言，同时又保持继承性，采用了链式继承的方法。&lt;/p&gt;
+
+&lt;p&gt;由&lt;code&gt;constructor&lt;/code&gt;创建的每个&lt;code&gt;instance&lt;/code&gt;都有个&lt;code&gt;__proto__&lt;/code&gt;属性，它指向&lt;code&gt;constructor.prototype&lt;/code&gt;。那么&lt;code&gt;constrcutor.prototype&lt;/code&gt;上定义的属性和方法都会被&lt;code&gt;instance&lt;/code&gt;所继承.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    function Person(name){
+        this.name=name;
+    }
+    Person.prototype.sayName=function(){
+        console.log(this.name);
+    }
+
+    var personOne=new Person("a");
+    var personTwo=new Person("b");
+
+    personOne.sayName(); // 输出  "a"
+    personTwo.sayName(); //输出 "b"
+
+    console.log(personOne.__proto__==Person.prototype); // true
+    console.log(personTwo.__proto__==Person.prototype); // true
+
+    console.log(personOne.constructor==Person); //true
+    console.log(personTwo.constructor==Person); //true
+    console.log(Person.prototype.constructor==Person); //true
+
+    console.log(Person.constructor); //function Function(){}
+    console.log(Person.__proto__.__proto__); // Object{} 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src="https://sfault-image.b0.upaiyun.com/411/208/4112081703-55b2f9b759014_articlex" alt="图片描述"&gt;&lt;/p&gt;
+
+&lt;p&gt;参考文章：&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;a href="http://www.nowamagic.net/librarys/veda/detail/1648"&gt;强大的原型和原型链&lt;/a&gt;  &lt;/li&gt;
+&lt;li&gt;&lt;a href="http://www.jb51.net/article/30750.htm"&gt;js原型链看图说明&lt;/a&gt;  &lt;/li&gt;
+&lt;li&gt;&lt;a href="http://blog.jobbole.com/9648/"&gt;理解javascript原型&lt;/a&gt;  &lt;/li&gt;
+&lt;li&gt;&lt;a href="http://developer.51cto.com/art/200907/134913.htm"&gt;javascript类和继承:constructor&lt;/a&gt;  &lt;/li&gt;
+&lt;li&gt;&lt;a href="http://www.nowamagic.net/librarys/veda/detail/1642"&gt;javascript探秘:构造函数&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;欢迎加入前端交流学习群QQ:126274877&lt;/p&gt;
+
+&lt;p&gt;如果觉得写的不错，请我喝杯咖啡吧：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="http://localhost:2368/content/images/2016/05/FullSizeRender-1.jpg" alt=""&gt;&lt;/p&gt;</content:encoded></item><item><title>build your promise step by step</title><description>&lt;p&gt;最近看了一篇关于&lt;code&gt;Promise&lt;/code&gt;内部实现原理的文章&lt;a href="http://www.mattgreer.org/articles/promises-in-wicked-detail/"&gt;Promise in wicked detail&lt;/a&gt;。作者从简明的例子入手，一步一步的构建健壮的&lt;code&gt;Promise&lt;/code&gt;实现。我就拿作者文中的代码实例梳理下文章的核心内容。&lt;/p&gt;
 
 &lt;p&gt;大家一定看到过嵌套很深回调函数，那么如何在保证代码流程才能将这些纵向嵌套的代码变成横向偏平的呢？&lt;/p&gt;
 
